@@ -56,11 +56,14 @@ for epoch in range(20):
         sum_accuracy += float(model.accuracy.data) * batchsize
     print('train mean loss={}, accuracy={}'.format(sum_loss / datasize, sum_accuracy / datasize))
 
-    # sum_loss, sum_accuracy = 0, 0
-    # for i in range(0, N, batchsize):
-    #     x = Variable(np.asarray(x_test[i:i + batchsize]), volatile=True)
-    #     y = Variable(np.asarray(y_test[i:i + batchsize]), volatile=True)
-    #     loss = model(x, t)
-    #     sum_loss += float(loss.data) * batchsize
-    #     sum_accuracy += float(model.accuracy.data) * batchsize
-    # print('test mean loss={}, accuracy={}'.format(sum_loss / N, sum_accuracy / N))
+
+
+p_test = np.empty((0, 784), float)
+x_test[0][0] = 1
+for i in range(10):
+    p_test = np.append(p_test, np.array([x_test[i]]), axis=0)
+
+
+print(p_test)
+print(predict(model, p_test))
+print(y_test[:10])
