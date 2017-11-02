@@ -2,3 +2,4 @@
 *.gz*
 __pycache__/
 chainer-1.5.1/
+.python-version
