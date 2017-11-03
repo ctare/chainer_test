@@ -2,14 +2,14 @@ import numpy as np
 import chainer
 from chainer import optimizers, links, functions, iterators, training
 
-source = np.array([
+x_data = np.array([
         [0, 0],
         [1, 0],
         [0, 1],
         [1, 1],
         ], dtype=np.float32)
 
-target = np.array([
+t_data = np.array([
         [0],
         [1],
         [1],
@@ -30,24 +30,22 @@ class MLP(chainer.Chain):
 
 
 optimizer = optimizers.Adam()
-mlp = MLP(2, 2, 1)
-accfun = lambda x, t: functions.sum(1 - abs(x-t))/x.size
-model = links.Classifier(mlp, lossfun=functions.mean_squared_error, accfun=accfun)
+mlp = MLP(x_data.shape[1], 2, t_data.shape[1])
+model = links.Classifier(mlp, lossfun=functions.mean_squared_error)
+model.compute_accuracy = False
 optimizer.setup(model)
 
-x_train = chainer.datasets.TupleDataset(source, target)
+x_train = chainer.datasets.TupleDataset(x_data, t_data)
 train_itr = iterators.SerialIterator(x_train, batch_size=4)
 
 updater = training.StandardUpdater(train_itr, optimizer)
-trainer = training.Trainer(updater, (8000, "epoch"), out="result")
+trainer = training.Trainer(updater, (10000, "epoch"))
 
 # trainer.extend(training.extensions.LogReport())
 # trainer.extend(training.extensions.PrintReport(['epoch', 'main/accuracy', 'main/loss']))
 # trainer.extend(training.extensions.ProgressBar())
 
 trainer.run()
-
-print("end")
 
 test = np.array([
     [1, 1],
