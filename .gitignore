@@ -3,3 +3,12 @@
 __pycache__/
 chainer-1.5.1/
 .python-version
+result/
+lg*.npy
+
+poke.h5
+models/
+lg/xtdata/*
+lg/data/*
+lg/*.npy
+six*.npy
