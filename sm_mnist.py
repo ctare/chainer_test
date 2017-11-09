@@ -7,6 +7,13 @@ import chainer.functions  as F
 import chainer.links as L
 import sys
 
+can_use_gpu = False
+try:
+    xp = cuda.cupy
+    can_use_gpu = True
+except:
+    xp = np
+
 batchsize = 100
 n_epoch = 20
 n_units = 1000
@@ -39,8 +46,13 @@ model = L.Classifier(mnist_model, lossfun=F.softmax_cross_entropy, accfun=F.accu
 # model.compute_accuracy = False
 optimizer.setup(model)
 
-lgdata = np.load("lgdata.npy").astype(np.float32)
-lgtarget = np.load("lglabel.npy").astype(np.int32)
+if can_use_gpu:
+    gpu_device = 0
+    cuda.get_device(gpu_device).use()
+    model.to_gpu(gpu_device)
+
+lgdata = xp.load("lgdata.npy").astype(xp.float32)
+lgtarget = xp.load("lglabel.npy").astype(xp.int32)
 
 train_itr = iterators.SerialIterator(chainer.datasets.TupleDataset(lgdata, lgtarget), batch_size=batchsize)
 # train_itr = iterators.SerialIterator(source_data, batch_size=batchsize)
@@ -57,7 +69,7 @@ if os.path.exists(model_path):
     serializers.load_hdf5(model_path, model)
     p = F.softmax(model.predictor(x_test))
     print(x_test.shape)
-    print(sum(np.argmax(p.data, axis=1) == t_test) / len(t_test))
+    print(sum(xp.argmax(p.data, axis=1) == t_test) / len(t_test))
 else:
     trainer.run()
     mnist_model.to_cpu()
