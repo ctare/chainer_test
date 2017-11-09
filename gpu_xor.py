@@ -1,20 +1,22 @@
+from chainer import cuda
 import numpy as np
 import chainer
 from chainer import optimizers, links, functions, iterators, training
 
-x_data = np.array([
+xp = cuda.cupy
+x_data = xp.array([
         [0, 0],
         [1, 0],
         [0, 1],
         [1, 1],
-        ], dtype=np.float32)
+        ], dtype=xp.float32)
 
-t_data = np.array([
+t_data = xp.array([
         [0],
         [1],
         [1],
         [0],
-        ], dtype=np.float32)
+        ], dtype=xp.float32)
 
 
 class MLP(chainer.Chain):
@@ -34,6 +36,12 @@ mlp = MLP(x_data.shape[1], 2, t_data.shape[1])
 model = links.Classifier(mlp, lossfun=functions.mean_squared_error)
 model.compute_accuracy = False
 optimizer.setup(model)
+
+# --- use gpu ---
+gpu_device = 0
+cuda.get_device(gpu_device).use()
+model.to_gpu(gpu_device)
+# ---------------
 
 x_train = chainer.datasets.TupleDataset(x_data, t_data)
 train_itr = iterators.SerialIterator(x_train, batch_size=4)
