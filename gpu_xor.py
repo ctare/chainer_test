@@ -55,12 +55,12 @@ trainer = training.Trainer(updater, (10000, "epoch"))
 
 trainer.run()
 
-test = np.array([
+test = xp.array([
     [1, 1],
     [0, 0],
     [1, 0],
     [0, 1],
-    ], dtype=np.float32)
+    ], dtype=xp.float32)
 p = model.predictor(test)
 for i in p.data:
     print("%.5f" % i[0])
