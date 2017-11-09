@@ -2,6 +2,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 from chainer import datasets
 from chainer import cuda, Variable, optimizers, Chain, training, iterators, serializers
+import chainer
 import chainer.functions  as F
 import chainer.links as L
 import sys
@@ -38,7 +39,11 @@ model = L.Classifier(mnist_model, lossfun=F.softmax_cross_entropy, accfun=F.accu
 # model.compute_accuracy = False
 optimizer.setup(model)
 
-train_itr = iterators.SerialIterator(source_data, batch_size=batchsize)
+lgdata = np.load("lgdata.npy").astype(np.float32)
+lgtarget = np.load("lglabel.npy").astype(np.int32)
+
+train_itr = iterators.SerialIterator(chainer.datasets.TupleDataset(lgdata, lgtarget), batch_size=batchsize)
+# train_itr = iterators.SerialIterator(source_data, batch_size=batchsize)
 updater = training.StandardUpdater(train_itr, optimizer)
 trainer = training.Trainer(updater, (n_epoch, "epoch"))
 
@@ -50,7 +55,8 @@ import os
 model_path = "my_mnist.h5"
 if os.path.exists(model_path):
     serializers.load_hdf5(model_path, model)
-    p = model.predictor(x_test)
+    p = F.softmax(model.predictor(x_test))
+    print(x_test.shape)
     print(sum(np.argmax(p.data, axis=1) == t_test) / len(t_test))
 else:
     trainer.run()
