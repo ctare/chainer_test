@@ -55,8 +55,12 @@ if can_use_gpu:
 # lgtarget = xp.load("lglabel.npy").astype(xp.int32)
 #
 # train_itr = iterators.SerialIterator(chainer.datasets.TupleDataset(lgdata, lgtarget), batch_size=batchsize)
-train_itr = iterators.SerialIterator(source_data, batch_size=batchsize)
+if can_use_gpu:
+    train_itr = iterators.SerialIterator(chainer.datasets.TupleDataset(cuda.to_gpu(x_data, gpu_device), cuda.to_gpu(t_data, gpu_device)), batch_size=batchsize)
+else:
+    train_itr = iterators.SerialIterator(source_data, batch_size=batchsize)
 updater = training.StandardUpdater(train_itr, optimizer)
+
 trainer = training.Trainer(updater, (n_epoch, "epoch"))
 
 trainer.extend(training.extensions.LogReport())
