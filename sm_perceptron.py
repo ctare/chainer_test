@@ -23,8 +23,7 @@ class XOR(chainer.Chain):
 
     def __call__(self, x):
         h1 = functions.sigmoid(self.l1(x))
-        h1 = self.l2(h1)
-        return h1
+        return self.l2(h1)
 
 
 optimizer = optimizers.Adam()
@@ -40,21 +39,24 @@ updater = training.StandardUpdater(train_itr, optimizer)
 trainer = training.Trainer(updater, (8000, "epoch"))
 
 # trainer.extend(training.extensions.LogReport())
-# trainer.extend(training.extensions.PrintReport(['epoch', 'main/loss']))
+# trainer.extend(training.extensions.PrintReport(['epoch', 'main/loss', 'main/accuracy']))
 # trainer.extend(training.extensions.ProgressBar())
 
 trainer.run()
 
 print("end")
 
-test = np.array([
-    [1, 1],
-    [0, 0],
-    [1, 0],
-    [0, 1],
-    ], dtype=np.float32)
-print(test)
-h1 = xor(test)
-print(functions.softmax_cross_entropy(h1, t_data))
-print(functions.softmax(xor(test), axis=0))
+d = np.array([
+        [1, 1],
+        [0, 0],
+        [1, 0],
+        [0, 1],
+        ], dtype=np.float32)
+
+p = model.predictor(d)
+print(p.data)
+for i in d:
+    test = np.array([i], dtype=np.float32)
+    print(test)
+    print(functions.softmax(xor(test)))
 # print(*map(lambda x: "%.5f" % x[0].data.tolist(), xor(test)))
