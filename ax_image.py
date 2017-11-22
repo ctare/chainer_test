@@ -40,14 +40,16 @@ class IMAGE(chainer.Chain):
     def show(self, h, size):
         print(h.data.shape)
         img = h.data[0]
+        ch = len(img)
         for i, v in enumerate(img, 1):
-            pylab.subplot(size * 2, size * 2, i + size*size*cnt)
+            pylab.subplot(int(ch ** 0.5) + 1, int(ch ** 0.5) + 1, i)
             pylab.axis('off')
             pylab.imshow(v)
 
     def __call__(self, x):
         h = x
         h = F.max_pooling_2d(F.relu(self.b1(self.c1(h))), 3, stride=2)
+        self.show(h, 27)
         h = F.max_pooling_2d(F.relu(self.b2(self.c2(h))), 3, stride=2)
         # h = F.max_pooling_2d(F.local_response_normalization(F.relu(self.c1(h))), 3, stride=2)
         # h = F.max_pooling_2d(F.local_response_normalization(F.relu(self.c2(h))), 3, stride=2)
@@ -76,9 +78,10 @@ if os.path.exists(model_path):
     #
     # x_gyara = x_tests[1 * 10][:, :, ::-1]
     # x_gyara = np.array([cv2.resize(x_gyara, (227, 227))], dtype=np.float32).transpose(0, 3, 1, 2)
-    #
-    # x_kaguya = x_tests[0 * 10][:, :, ::-1]
-    # x_kaguya = np.array([cv2.resize(x_kaguya, (227, 227))], dtype=np.float32).transpose(0, 3, 1, 2)
+
+    x_kaguya = x_tests[0 * 10][:, :, ::-1]
+    x_kaguya = np.array([cv2.resize(x_kaguya, (227, 227))], dtype=np.float32).transpose(0, 3, 1, 2)
+
     # x_pori = x_tests[5 * 10][:, :, ::-1]
     # x_pori = np.array([cv2.resize(x_pori, (227, 227))], dtype=np.float32).transpose(0, 3, 1, 2)
     #
@@ -86,48 +89,48 @@ if os.path.exists(model_path):
     # x_gard = np.array([cv2.resize(x_gard, (227, 227))], dtype=np.float32).transpose(0, 3, 1, 2)
     # imodel(x_gyara)
     # cnt += 1
-    # imodel(x_kaguya)
+    imodel(x_kaguya)
     # cnt += 1
     # imodel(x_pori)
     # cnt += 1
     # imodel(x_gard)
-    # pylab.show()
+    pylab.show()
     # - - - - - 
     
-    for i in range(6):
-        # x_test = np.r_[np.zeros((25, 100, 3), dtype=np.uint8), x_test[:-25, :, ::-1]]
-        for idx, x_test in enumerate(x_tests[i*10: i*10 + 10]):
-            x_test = x_test[:, :, :]
-            x_tmp = x_test
-
-            x_test = np.array([cv2.resize(x_test, (227, 227))], dtype=np.float32).transpose(0, 3, 1, 2)
-
-            # x_data = np.load("sixdata227.npy").astype(np.float32) / 255
-            # t_data = np.load("sixlabel.npy").astype(np.int32)
-            #
-            # x_data = x_data.transpose(0, 3, 1, 2)
-            #
-            # print(x_data.shape)
-            p = model.predictor(x_test)
-            # print(p)
-            # print("---")
-            # print(p.shape)
-            # print("===")
-            p = F.softmax(p)
-            # print(p)
-            print(np.argmax(p.data))
-
-            pylab.subplot(14, 10, idx + 20*i + 1 )
-            pylab.axis('off')
-            pylab.imshow(x_tmp.astype(np.uint8))
-            pylab.title("%d" % np.argmax(p.data))
-    for s in range(6):
-        pylab.subplot(14, 10, 120 + s + 1)
-        pylab.axis('off')
-        pylab.imshow(x_data[200 * s + 1])
-        pylab.title(s)
-    print("===")
-    pylab.show()
+    # for i in range(6):
+    #     # x_test = np.r_[np.zeros((25, 100, 3), dtype=np.uint8), x_test[:-25, :, ::-1]]
+    #     for idx, x_test in enumerate(x_tests[i*10: i*10 + 10]):
+    #         x_test = x_test[:, :, :]
+    #         x_tmp = x_test
+    #
+    #         x_test = np.array([cv2.resize(x_test, (227, 227))], dtype=np.float32).transpose(0, 3, 1, 2)
+    #
+    #         # x_data = np.load("sixdata227.npy").astype(np.float32) / 255
+    #         # t_data = np.load("sixlabel.npy").astype(np.int32)
+    #         #
+    #         # x_data = x_data.transpose(0, 3, 1, 2)
+    #         #
+    #         # print(x_data.shape)
+    #         p = model.predictor(x_test)
+    #         # print(p)
+    #         # print("---")
+    #         # print(p.shape)
+    #         # print("===")
+    #         p = F.softmax(p)
+    #         # print(p)
+    #         print(np.argmax(p.data))
+    #
+    #         pylab.subplot(14, 10, idx + 20*i + 1 )
+    #         pylab.axis('off')
+    #         pylab.imshow(x_tmp.astype(np.uint8))
+    #         pylab.title("%d" % np.argmax(p.data))
+    # for s in range(6):
+    #     pylab.subplot(14, 10, 120 + s + 1)
+    #     pylab.axis('off')
+    #     pylab.imshow(x_data[200 * s + 1])
+    #     pylab.title(s)
+    # print("===")
+    # pylab.show()
     # print(x_test.shape)
     # print(sum(np.argmax(p.data, axis=1) == t_test) / len(t_test))
 else:
